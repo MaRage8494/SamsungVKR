@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "807561318598",
+    "project_id": "millioner-1d7cb",
+    "storage_bucket": "millioner-1d7cb.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:807561318598:android:be9dcf843c7cade6ef87c7",
+        "android_client_info": {
+          "package_name": "com.samsung.millioner"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAKZT2PWxLi96vuuJXO0krwamPlE1ELdX0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
