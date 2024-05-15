@@ -24,6 +24,7 @@ class DetailFragment : Fragment() {
     private var position = 0
     private var viewModel: ThemeListViewModel? = null
     private var quizId: String? = null
+    private lateinit var detailProgressBar: ProgressBar
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -45,6 +46,7 @@ class DetailFragment : Fragment() {
         val title : TextView? = view.findViewById(R.id.detailTitleText)
         val startQuizBtn: Button? = view.findViewById(R.id.detailStartBtn)
         val backBtn: Button? = view?.findViewById(R.id.detailBackBtn)
+        detailProgressBar = view.findViewById(R.id.detailProgressBar)
         navController = Navigation.findNavController(view)
         position = DetailFragmentArgs.fromBundle(arguments ?: Bundle()).themeId
         val observe = viewModel?.getThemeListLiveData()?.observe(viewLifecycleOwner) { value ->
@@ -52,6 +54,8 @@ class DetailFragment : Fragment() {
                 val quiz: ThemeListModel = themeList[position]
                 title?.text = quiz.title
                 quizId = quiz.themeId
+                detailProgressBar.visibility = View.INVISIBLE
+                title?.visibility = View.VISIBLE
             }
         }
 

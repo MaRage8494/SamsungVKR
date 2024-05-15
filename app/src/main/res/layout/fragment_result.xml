@@ -7,6 +7,19 @@
     android:layout_height="match_parent"
     tools:context=".views.ResultFragment">
 
+    <ProgressBar
+        android:id="@+id/resultProgressBar"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="108dp"
+        android:indeterminateTint="@color/yellow"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/resultTitle" />
+
     <Button
         android:id="@+id/resultAgainBtn"
         android:layout_width="0dp"
@@ -68,6 +81,7 @@
         android:textAllCaps="false"
         android:textColor="@color/yellow"
         android:textSize="24sp"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/resultTitle"
@@ -86,6 +100,7 @@
         android:text="Вопросов отвечено"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:visibility="invisible"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -101,6 +116,7 @@
         android:text="/10"
         android:textSize="20sp"
         android:textStyle="bold"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/resultField"
         app:layout_constraintEnd_toEndOf="@+id/resultField"
         app:layout_constraintTop_toTopOf="@+id/resultField" />

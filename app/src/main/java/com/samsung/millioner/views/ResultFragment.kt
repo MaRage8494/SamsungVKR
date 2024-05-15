@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -24,6 +25,8 @@ class ResultFragment : Fragment() {
     private lateinit var viewModel: QuestionViewModel
     private lateinit var correctAnswer: TextView
     private lateinit var money: TextView
+    private lateinit var resultField: TextView
+    private lateinit var resultProgressBar: ProgressBar
     private var quizId: String? = null
     private lateinit var mediaPlayer: MediaPlayer
 
@@ -64,8 +67,8 @@ class ResultFragment : Fragment() {
         mainMenuBtn = view.findViewById(R.id.resultMenuBtn)
         correctAnswer = view.findViewById(R.id.resultAnswers)
         money = view.findViewById(R.id.resultMoney)
-        mainMenuBtn.isEnabled = false
-        againBtn.isEnabled = false
+        resultField = view.findViewById(R.id.resultField)
+        resultProgressBar = view.findViewById(R.id.resultProgressBar)
 
         quizId = QuestionFragmentArgs.fromBundle(arguments ?: Bundle()).quizId
         viewModel.setQuizId(quizId!!)
@@ -76,8 +79,10 @@ class ResultFragment : Fragment() {
 
             correctAnswer.text = "${correctCount.toString()}/10"
             money.text = "Банк: ${moneyCount.toString()}р"
-            mainMenuBtn.isEnabled = true
-            againBtn.isEnabled = true
+            resultProgressBar.visibility = View.INVISIBLE
+            correctAnswer.visibility = View.VISIBLE
+            money.visibility = View.VISIBLE
+            resultField.visibility = View.VISIBLE
         })
 
 

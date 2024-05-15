@@ -1,12 +1,14 @@
 package com.samsung.millioner.views
 
 import android.media.MediaPlayer
+import android.opengl.Visibility
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.ProgressBar
 import android.widget.TextView
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -27,6 +29,7 @@ class MenuFragment : Fragment() {
     private lateinit var signOutBtn: Button
     private lateinit var menuStartBtn: Button
     private lateinit var menuRulesBtn: Button
+    private lateinit var menuProgressBar: ProgressBar
     private lateinit var viewModel: AuthViewModel
     private lateinit var navController: NavController
     private lateinit var record: TextView
@@ -84,8 +87,7 @@ class MenuFragment : Fragment() {
         menuStartBtn = view.findViewById(R.id.menuStartBtn)
         menuRulesBtn = view.findViewById(R.id.menuRulesBtn)
         record = view.findViewById(R.id.menuRecord)
-        menuRulesBtn.isEnabled = false
-        menuStartBtn.isEnabled = false
+        menuProgressBar = view.findViewById(R.id.menuProgressBar)
 
         navController = Navigation.findNavController(view)
 
@@ -104,8 +106,8 @@ class MenuFragment : Fragment() {
         questionViewModel.getResultMutableLiveData().observe(viewLifecycleOwner, Observer { stringLongHashMap ->
             val moneyCount = stringLongHashMap["money"]
             record.text = "${moneyCount.toString()}р"
-            menuRulesBtn.isEnabled = true
-            menuStartBtn.isEnabled = true
+            menuProgressBar.visibility = View.INVISIBLE
+            record.visibility = View.VISIBLE
         })
     }
 }
