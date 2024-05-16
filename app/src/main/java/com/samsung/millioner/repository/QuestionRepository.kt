@@ -66,6 +66,7 @@ class QuestionRepository(
                 .collection("questions").get()
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
+                        Log.d("TASK RESULT", task!!.result.toString())
                         val resultList = task.result!!.toObjects(QuestionModel::class.java)
                         Log.d("RESULT", resultList.toString())
                         Log.d("QUIZID", quizId)

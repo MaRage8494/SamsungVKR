@@ -22,8 +22,8 @@ import com.samsung.millioner.viewmodel.QuestionViewModel
 import kotlin.random.Random
 
 class QuestionFragment : Fragment(), View.OnClickListener {
-    private lateinit var mediaPlayer: MediaPlayer
-    private lateinit var mediaPlayerHint: MediaPlayer
+    private var mediaPlayer: MediaPlayer? = null
+    private var mediaPlayerHint: MediaPlayer? = null
     private lateinit var viewModel: QuestionViewModel
     private var navController: NavController? = null
     private var progressBar: ProgressBar? = null
@@ -65,29 +65,67 @@ class QuestionFragment : Fragment(), View.OnClickListener {
             ViewModelProvider.AndroidViewModelFactory.getInstance(requireActivity().application)
         )[QuestionViewModel::class.java]
 
-        mediaPlayer = MediaPlayer.create(requireContext(), R.raw.background)
-        mediaPlayer.isLooping = true
-        mediaPlayer.start()
+        mediaPlayer = MediaPlayer.create(requireContext(), R.raw.background).apply {
+            isLooping = true
+            start()
+            setOnCompletionListener {
+                releaseMediaPlayer()
+            }
+        }
+    }
+    private fun releaseMediaPlayer() {
+        mediaPlayer?.apply {
+            try {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            } catch (e: IllegalStateException) {
+                Log.e("MediaPlayer", "Error releasing MediaPlayer", e)
+            }
+            mediaPlayer = null
+        }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (this::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
-            mediaPlayer.stop()
-            mediaPlayer.release()
-            mediaPlayerHint.release()
-        }
+        releaseMediaPlayer()
+        releaseMediaPlayerHint()
     }
+
     override fun onPause() {
         super.onPause()
-        if (this::mediaPlayer.isInitialized && mediaPlayer.isPlaying) {
-            mediaPlayer.pause()
+        try {
+            if (mediaPlayer?.isPlaying == true) {
+                mediaPlayer?.pause()
+                Log.d("PAUSE", "TRUE")
+            }
+        } catch (e: IllegalStateException) {
+            Log.e("MediaPlayer", "Error pausing MediaPlayer", e)
         }
     }
+
     override fun onResume() {
         super.onResume()
-        if (this::mediaPlayer.isInitialized) {
-            mediaPlayer.start()
+        try {
+            mediaPlayer?.start()
+            Log.d("RESUME", "TRUE")
+        } catch (e: IllegalStateException) {
+            Log.e("MediaPlayer", "Error resuming MediaPlayer", e)
+        }
+    }
+
+    private fun releaseMediaPlayerHint() {
+        mediaPlayerHint?.apply {
+            try {
+                if (isPlaying) {
+                    stop()
+                }
+                release()
+            } catch (e: IllegalStateException) {
+                Log.e("MediaPlayerHint", "Error releasing MediaPlayerHint", e)
+            }
+            mediaPlayerHint = null
         }
     }
 
@@ -209,10 +247,18 @@ class QuestionFragment : Fragment(), View.OnClickListener {
             R.id.questionFinishBtn -> if (currentQuestion.toLong() == totalQuestions || getWrong) {
                 submitResults()
             } else {
-                mediaPlayer.stop()
-                mediaPlayer = MediaPlayer.create(requireContext(), R.raw.background)
-                mediaPlayer.isLooping = true
-                mediaPlayer.start()
+                try {
+                    if (mediaPlayer != null && mediaPlayer!!.isPlaying) {
+                        mediaPlayer!!.stop()
+                    }
+                    mediaPlayer?.reset()
+                    mediaPlayer = MediaPlayer.create(requireContext(), R.raw.background).apply {
+                        isLooping = true
+                        start()
+                    }
+                } catch (e: IllegalStateException) {
+                    e.printStackTrace()
+                }
                 currentQuestion++
                 loadQuestions(currentQuestion)
                 resetOptions()
@@ -278,53 +324,95 @@ class QuestionFragment : Fragment(), View.OnClickListener {
         return values
     }
 
-    private fun useHintHalf(){
+    private fun useHintHalf() {
         val buttons = listOf(option1Btn, option2Btn, option3Btn, option4Btn)
         if (canAnswer && !usedHalf) {
-            mediaPlayerHint = MediaPlayer.create(requireContext(), R.raw.use_hint)
-            mediaPlayerHint.start()
-            val result = getAnswerOption()
-            val (removeNum1, removeNum2) = getTwoRandomNumbersExcluding(result)
-            buttons[removeNum1]!!.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.red)
-            buttons[removeNum2]!!.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.red)
-            buttons[removeNum1]!!.isEnabled = false
-            buttons[removeNum2]!!.isEnabled = false
-            usedHalf = true
+            try {
+                mediaPlayerHint?.apply {
+                    if (isPlaying) {
+                        stop()
+                    }
+                    reset()
+                }
+                mediaPlayerHint = MediaPlayer.create(requireContext(), R.raw.use_hint).apply {
+                    start()
+                    setOnCompletionListener {
+                        releaseMediaPlayerHint()
+                    }
+                }
+                val result = getAnswerOption()
+                val (removeNum1, removeNum2) = getTwoRandomNumbersExcluding(result)
+                buttons[removeNum1]!!.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.red)
+                buttons[removeNum2]!!.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.red)
+                buttons[removeNum1]!!.isEnabled = false
+                buttons[removeNum2]!!.isEnabled = false
+                usedHalf = true
 
-            deleteSaturation(hintHalf)
+                deleteSaturation(hintHalf)
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+            }
         }
-
     }
 
-    private fun useHintHelp(){
+
+    private fun useHintHelp() {
         val percents = listOf(questionPercentA, questionPercentB, questionPercentC, questionPercentD)
         if (canAnswer && !usedHelp) {
-            mediaPlayerHint = MediaPlayer.create(requireContext(), R.raw.use_hint)
-            mediaPlayerHint.start()
-            val result = getAnswerOption()
-            val values = generatePercent(result)
+            try {
+                mediaPlayerHint?.apply {
+                    if (isPlaying) {
+                        stop()
+                    }
+                    reset()
+                }
+                mediaPlayerHint = MediaPlayer.create(requireContext(), R.raw.use_hint).apply {
+                    start()
+                    setOnCompletionListener {
+                        releaseMediaPlayerHint()
+                    }
+                }
+                val result = getAnswerOption()
+                val values = generatePercent(result)
 
-            percents.forEachIndexed { index, percentValue ->
-                percentValue!!.text = "${values[index]}%"
-                percentValue.visibility = View.VISIBLE
+                percents.forEachIndexed { index, percentValue ->
+                    percentValue!!.text = "${values[index]}%"
+                    percentValue.visibility = View.VISIBLE
+                }
+                usedHelp = true
+
+                deleteSaturation(hintHelp)
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
             }
-            usedHelp = true
-
-            deleteSaturation(hintHelp)
         }
-
     }
 
-    private fun useHintLife(){
+
+    private fun useHintLife() {
         if (canAnswer && !usedLife) {
-            mediaPlayerHint = MediaPlayer.create(requireContext(), R.raw.use_hint)
-            mediaPlayerHint.start()
-            life = true
-            usedLife = true
-            deleteSaturation(hintLife)
+            try {
+                mediaPlayerHint?.apply {
+                    if (isPlaying) {
+                        stop()
+                    }
+                    reset()
+                }
+                mediaPlayerHint = MediaPlayer.create(requireContext(), R.raw.use_hint).apply {
+                    start()
+                    setOnCompletionListener {
+                        releaseMediaPlayerHint()
+                    }
+                }
+                life = true
+                usedLife = true
+                deleteSaturation(hintLife)
+            } catch (e: IllegalStateException) {
+                e.printStackTrace()
+            }
         }
-
     }
+
 
     private fun resetOptions() {
         nextBtn!!.visibility = View.INVISIBLE
@@ -356,28 +444,47 @@ class QuestionFragment : Fragment(), View.OnClickListener {
     }
 
     private fun verifyAnswer(button: Button?) {
+        val buttons = listOf(option1Btn, option2Btn, option3Btn, option4Btn)
         if (canAnswer) {
             if (answer == button!!.text.substring(3)) {
                 button.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.green)
 
                 correctAnswer++
                 moneyIndex++
-                mediaPlayer.stop()
-                mediaPlayer = MediaPlayer.create(requireContext(), R.raw.correct)
-                mediaPlayer.isLooping = false
-                mediaPlayer.start()
+                try {
+                    if (mediaPlayer?.isPlaying == true) {
+                        mediaPlayer?.stop()
+                    }
+                    mediaPlayer?.reset()
+                    mediaPlayer = MediaPlayer.create(requireContext(), R.raw.correct).apply {
+                        isLooping = false
+                        start()
+                    }
+                } catch (e: IllegalStateException) {
+                    e.printStackTrace()
+                }
             } else {
                 button.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.red)
                 if (!life) {
+                    val result = getAnswerOption()
+                    buttons[result]!!.backgroundTintList = ContextCompat.getColorStateList(requireContext(), R.color.green)
                     getWrong = true
-                    mediaPlayer.stop()
-                    mediaPlayer = MediaPlayer.create(requireContext(), R.raw.wrong)
-                    mediaPlayer.isLooping = false
-                    mediaPlayer.start()
+                    try {
+                        if (mediaPlayer?.isPlaying == true) {
+                            mediaPlayer?.stop()
+                        }
+                        mediaPlayer?.reset()
+                        mediaPlayer = MediaPlayer.create(requireContext(), R.raw.wrong).apply {
+                            isLooping = false
+                            start()
+                        }
+                    } catch (e: IllegalStateException) {
+                        e.printStackTrace()
+                    }
                 }
             }
         }
-        if (!life || answer == button!!.text.substring(3)){
+        if (!life || answer == button!!.text.substring(3)) {
             canAnswer = false
             showNextBtn()
         } else {

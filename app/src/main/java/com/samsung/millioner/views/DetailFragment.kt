@@ -46,6 +46,7 @@ class DetailFragment : Fragment() {
         val title : TextView? = view.findViewById(R.id.detailTitleText)
         val startQuizBtn: Button? = view.findViewById(R.id.detailStartBtn)
         val backBtn: Button? = view?.findViewById(R.id.detailBackBtn)
+        startQuizBtn!!.isEnabled = false
         detailProgressBar = view.findViewById(R.id.detailProgressBar)
         navController = Navigation.findNavController(view)
         position = DetailFragmentArgs.fromBundle(arguments ?: Bundle()).themeId
@@ -56,6 +57,7 @@ class DetailFragment : Fragment() {
                 quizId = quiz.themeId
                 detailProgressBar.visibility = View.INVISIBLE
                 title?.visibility = View.VISIBLE
+                startQuizBtn!!.isEnabled = true
             }
         }
 
